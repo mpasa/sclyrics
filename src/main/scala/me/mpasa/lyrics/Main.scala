@@ -28,12 +28,14 @@ object Main extends TaskApp {
 
   /**
     * Spawns a less subprocess using the current stdout and returns it
+    * The +g option executes the "g" command on startup, so it displayed always full screen
+    * The -R options enables color output
     *
     * @param content the content to send to the less command
     * @return the less process so it can be destroyed afterwards
     */
   private def less(content: String) = {
-    os.proc("less", "-R").spawn(stdin = content, stdout = os.Inherit)
+    os.proc("less", "+g", "-R").spawn(stdin = content, stdout = os.Inherit)
   }
 
   /** Handles the result of getting the lyrics
