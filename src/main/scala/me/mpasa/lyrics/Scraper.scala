@@ -48,9 +48,9 @@ case object GeniusScraper extends Scraper {
       case Success(document) =>
         val results = document.select("a").iterator().asScala.toSeq.map(_.attr("href"))
         val resultsGenius = results.filter(_.startsWith("https://genius.com"))
-        resultsGenius.headOption.toRight(FatalError("Cannot find lyrics"))
+        resultsGenius.headOption.toRight(LyricsNotFound(song, "Cannot find lyrics"))
       case _ =>
-        FatalError("Unable to search the lyrics on Google").asLeft
+        LyricsNotFound(song, "Unable to search the lyrics on Google").asLeft
     }
   }
 
@@ -60,16 +60,16 @@ case object GeniusScraper extends Scraper {
     * @param songUrl the Genius URL of a song
     * @return lyrics on Either's right side if they've been found, left with error if they couldn't be found
     */
-  private def scrapLyrics(songUrl: String): Either[LyricsError, String] = {
+  private def scrapLyrics(song: Song, songUrl: String): Either[LyricsError, String] = {
     fetchURL(songUrl) match {
       case Success(document) =>
         val lyrics = document.select(".lyrics")
         if (lyrics.size() > 0) {
           Right(lyrics.first().wholeText().trim)
         } else {
-          Left(FatalError("Cannot find lyrics"))
+          Left(LyricsNotFound(song, "Cannot find lyrics"))
         }
-      case _ => Left(FatalError("Unable to connect to the Genius song URL"))
+      case _ => Left(LyricsNotFound(song, "Unable to connect to the Genius song URL"))
     }
   }
 
@@ -77,7 +77,7 @@ case object GeniusScraper extends Scraper {
   override def scrap(song: Song): Either[LyricsError, String] = {
     for {
       url <- searchSongUrl(song)
-      lyrics <- scrapLyrics(url)
+      lyrics <- scrapLyrics(song, url)
     } yield lyrics
   }
 }

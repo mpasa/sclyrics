@@ -52,9 +52,10 @@ object Main extends TaskApp {
       case Left(error) => error match {
         case SongDidntChange =>
           state.copy(error = SongDidntChange.some)
-        case FatalError(errorMessage) if !state.error.contains(error) =>
+        case LyricsNotFound(song, errorMessage) if !state.error.contains(error) =>
+          val songInfo = Console.GREEN + s"${song.artist} - ${song.title}" + Console.RESET
           state.destroyProcess()
-          state.copy(subprocess = less(errorMessage).some, error = error.some)
+          state.copy(subprocess = less(songInfo + "\n" + errorMessage).some, error = error.some)
         case _ =>
           state
       }
