@@ -1,4 +1,3 @@
-# Readme
 A small project written in Scala to fetch and display the lyrics of the current playing song on the command line. The lyrics will be updated when a new song is played.
 
 
